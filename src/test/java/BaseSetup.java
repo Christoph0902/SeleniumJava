@@ -5,9 +5,12 @@ import net.thucydides.core.annotations.Steps;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.openqa.selenium.WebDriver;
 import steps.UserSteps;
 
+@Execution(ExecutionMode.CONCURRENT)
 @ExtendWith(SerenityJUnit5Extension.class)
 public abstract class BaseSetup {
 
