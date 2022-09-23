@@ -10,4 +10,9 @@ public class CreateTaskTests extends BaseSetup {
         step.userChecksIfTodoIsCreated();
     }
 
+    @Test
+    public void userWaitForStopTodo() {
+        step.waitUntilSTOPTodo();
+    }
+
 }
