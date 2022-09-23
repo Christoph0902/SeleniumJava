@@ -1,76 +1,111 @@
 package steps;
 
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
+import com.github.javafaker.Faker;
+import net.thucydides.core.annotations.Step;
+import net.thucydides.core.annotations.Steps;
+import pageobjects.NewTodoInput;
+import pageobjects.TodoFilters;
+import pageobjects.TodoMVCApp;
+import pageobjects.TodosList;
+
+import java.util.List;
+
 
 public class UserSteps {
 
-    private static final By NEW_TODO_INPUT = By.cssSelector(".new-todo");
-    private static final By TODOS_LIST = By.cssSelector(".todo-list");
-    private static final String TODOMVC_URL = "http://todomvc.com/examples/jquery/";
-    private static final By TODO_CHECKBOX = By.cssSelector(".todo-list .toggle");
-    private static final By ACTIVE_TODOS_BUTTON = By.cssSelector(".filters [href='#/active']");
-    private static final By COMPLETED_TODOS_BUTTON = By.cssSelector(".filters [href='#/completed']");
 
-    private WebDriver browser = new ChromeDriver();
 
-    public void userOpensTodoMVCApp() {
-        browser.get(TODOMVC_URL);
+    @Steps
+    NewTodoInput todoInput;
+
+    @Steps
+    TodosList todosList;
+
+    @Steps
+    TodoFilters filters;
+
+    @Steps
+    TodoMVCApp app;
+
+    private String todoName;
+
+    private static Faker dataGenerator = new Faker();
+
+    @Step
+    public void userChecksIfCompletedTaskIsOnCompletedTab() {
+        userChecksIfCompletedTaskIsOnCompletedTab(this.todoName);
     }
 
-    public void userAdsNewTodo(String todo) {
-        WebElement input = browser.findElement(NEW_TODO_INPUT);
-        input.sendKeys(todo);
-        input.sendKeys(Keys.ENTER);
+    @Step
+    public void userChecksIfCompletedTaskIsOnCompletedTab(String todoName) {
+        filters.goToCompletedTab();
+        todosList.checkIfTodoIsListed(todoName);
     }
 
-    public void userChecksIfTodoIsCreated(String todoName) {
-        var list = browser.findElement(TODOS_LIST);
-        var todos = list.getText();
-        MatcherAssert.assertThat("Todo has correct name", todos, Matchers.containsString(todoName));
+    @Step
+    public void userChecksIfCompletedTaskIsNotOnActiveTab() {
+        userChecksIfCompletedTaskIsNotOnActiveTab(this.todoName);
+    }
+    @Step
+    public void userChecksIfCompletedTaskIsNotOnActiveTab(String todoName) {
+        filters.goToActiveTab();
+        todosList.checkIfTodoIsNotListed(todoName);
     }
 
-    public void userMarksTodoAsDone(String todoName) {
-        var checkbox = browser.findElement(TODO_CHECKBOX);
-        checkbox.click();
-    }
-
+    @Step
     public void userChecksIfTodoIsMarkedAsCompleted() {
-        var todo = browser.findElement(By.cssSelector(".todo-list li"));
-        var classes = todo.getAttribute("class");
-        MatcherAssert.assertThat("Todo is marked as completed", classes, Matchers.equalTo("completed"));
-
-//        var completedTodos = browser.findElements(By.cssSelector(".completed"));
-
-
+        userChecksIfTodoIsMarkedAsCompleted(this.todoName);
+    }
+    @Step
+    public void userChecksIfTodoIsMarkedAsCompleted(String todoName) {
+        todosList.checkIfTodoCompleted(todoName);
     }
 
-    public void userChecksIfTodoIsNotActive(String todoName) {
-        var activeTodos = browser.findElement(ACTIVE_TODOS_BUTTON);
-        activeTodos.click();
-        var list = browser.findElement(TODOS_LIST);
-        var todoNames = list.getText();
-        MatcherAssert.assertThat("Todo is not active", todoNames, Matchers.not(Matchers.equalTo(todoName)));
+    @Step
+    public void userCompletesTodo() {
+        userCompletesTodo(this.todoName);
     }
 
-    public void userChecksIfTodoIsCompleted(String todoName) {
-        var completedTodos = browser.findElement(COMPLETED_TODOS_BUTTON);
-        completedTodos.click();
-        var list = browser.findElement(TODOS_LIST);
-        var todoNames = list.getText();
-        MatcherAssert.assertThat("Todo is completed", todoNames, (Matchers.containsString(todoName)));
+    @Step
+    public void userCompletesTodo(String todoName) {
+        todosList.completeTodo(todoName);
     }
 
-    public void openBrowser() {
-        browser.get(TODOMVC_URL);
+    @Step
+    public void userChecksIfTodoIsCreated() {
+        userChecksIfTodoIsCreated(this.todoName);
     }
 
-    public void closeBrowser() {
-        browser.close();
+    @Step
+    public void userChecksIfTodoIsCreated(String todoName) {
+        todosList.checkIfTodoIsListed(todoName);
+    }
+
+    @Step
+    public void userAddsANewTodo() {
+        this.todoName = dataGenerator.dragonBall().character();
+        userAddsANewTodo(this.todoName);
+    }
+
+    @Step
+    public void userAddsANewTodo(String todoName) {
+        todoInput.createNewTodo(todoName);
+    }
+
+    @Step
+    public void userOpensTodoMVCApp() {
+        app.openTodoMVC();
+    }
+
+    @Step
+    public void userClosesTodoMVCApp() {
+        app.closeTodoMVC();
+    }
+
+    @Step
+    public void userAddsTodos(List<String> todos) {
+        for (String todo : todos) {
+            userAddsANewTodo(todo);
+        }
     }
 }
