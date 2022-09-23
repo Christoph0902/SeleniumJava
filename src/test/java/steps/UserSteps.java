@@ -108,4 +108,8 @@ public class UserSteps {
             userAddsANewTodo(todo);
         }
     }
+
+    public void waitUntilSTOPTodo() {
+        todosList.waitForSTOP();
+    }
 }
